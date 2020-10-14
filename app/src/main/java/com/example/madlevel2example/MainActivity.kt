@@ -3,6 +3,7 @@ package com.example.madlevel2example
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.madlevel2example.databinding.ActivityMainBinding
@@ -39,6 +40,9 @@ class MainActivity : AppCompatActivity() {
 
         // ?
         binding.rvReminders.addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
+
+        // Adds touchhelper to the recyclerview
+        createItemTouchHelper().attachToRecyclerView(rvReminders)
     }
 
     private fun addReminder(reminder: String) {
@@ -53,5 +57,35 @@ class MainActivity : AppCompatActivity() {
         } else {
             Snackbar.make(etReminder, "You must fill in the input field!", Snackbar.LENGTH_SHORT).show()
         }
+    }
+
+    /**
+     *
+     */
+    private fun createItemTouchHelper(): ItemTouchHelper {
+
+        val callback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            // Dit is een tegenintuïtieve structuur
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            // These are overridden functions it will fill in the recyclerview.
+            // Then from the adapterposition the data is removed from the list.
+            // Notifies the adapter that the data has been changed and updates accordingly.
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+
+                // When swipe is complete remove
+                reminders.removeAt(position)
+                reminderAdapter.notifyDataSetChanged()
+            }
+        }
+
+        return ItemTouchHelper((callback))
     }
 }
